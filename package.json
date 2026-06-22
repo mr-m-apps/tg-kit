@@ -36,7 +36,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup && tsup src/browser.ts --format iife --globalName TgKit --no-dts --minify --out-dir dist",
+    "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit"
