@@ -31,41 +31,56 @@ const DEFAULT_USER: TgUser = {
   is_premium: false,
 };
 
-const LIGHT_THEME: TgThemeParams = {
-  bg_color: '#ffffff',
-  secondary_bg_color: '#f1f1f1',
-  text_color: '#000000',
-  hint_color: '#999999',
-  link_color: '#2678b6',
-  button_color: '#2678b6',
-  button_text_color: '#ffffff',
-  header_bg_color: '#527da3',
-  accent_text_color: '#168acd',
-  section_bg_color: '#ffffff',
-  section_header_text_color: '#168acd',
-  section_separator_color: '#e7e7e7',
-  subtitle_text_color: '#999999',
-  destructive_text_color: '#cc2929',
-  bottom_bar_bg_color: '#ffffff',
-};
+function getAppTheme(): TgThemeParams {
+  if (typeof document === 'undefined') {
+    return {
+      bg_color: '#0f0f0f',
+      secondary_bg_color: '#101010',
+      text_color: '#f5f5f5',
+      hint_color: '#7a7a7a',
+      link_color: '#6ab3f3',
+      button_color: '#f5f5f5',
+      button_text_color: '#262626',
+      header_bg_color: '#0f0f0f',
+      accent_text_color: '#6ab3f3',
+      section_bg_color: '#101010',
+      section_header_text_color: '#6ab3f3',
+      section_separator_color: '#ffffff14',
+      subtitle_text_color: '#7a7a7a',
+      destructive_text_color: '#f16060',
+      bottom_bar_bg_color: '#0f0f0f',
+    };
+  }
 
-const DARK_THEME: TgThemeParams = {
-  bg_color: '#17212b',
-  secondary_bg_color: '#232e3c',
-  text_color: '#f5f5f5',
-  hint_color: '#708499',
-  link_color: '#6ab3f3',
-  button_color: '#5288c1',
-  button_text_color: '#ffffff',
-  header_bg_color: '#17212b',
-  accent_text_color: '#6ab3f3',
-  section_bg_color: '#17212b',
-  section_header_text_color: '#6ab3f3',
-  section_separator_color: '#111921',
-  subtitle_text_color: '#708499',
-  destructive_text_color: '#ec3942',
-  bottom_bar_bg_color: '#17212b',
-};
+  const root = document.documentElement;
+  const styles = getComputedStyle(root);
+
+  const getColor = (varName: string, fallback: string): string => {
+    const value = styles.getPropertyValue(varName).trim();
+    return value || fallback;
+  };
+
+  const isDark = getColor('--color-scheme', 'dark') === 'dark' || 
+                 getColor('--background', '#0f0f0f') === '#0f0f0f';
+
+  return {
+    bg_color: getColor('--background', isDark ? '#0f0f0f' : '#ffffff'),
+    secondary_bg_color: getColor('--secondary', isDark ? '#101010' : '#f1f1f1'),
+    text_color: getColor('--foreground', isDark ? '#f5f5f5' : '#000000'),
+    hint_color: getColor('--muted-foreground', isDark ? '#7a7a7a' : '#999999'),
+    link_color: getColor('--primary', isDark ? '#6ab3f3' : '#2678b6'),
+    button_color: getColor('--primary', isDark ? '#f5f5f5' : '#2678b6'),
+    button_text_color: getColor('--primary-foreground', isDark ? '#262626' : '#ffffff'),
+    header_bg_color: getColor('--background', isDark ? '#0f0f0f' : '#ffffff'),
+    accent_text_color: getColor('--accent-foreground', isDark ? '#6ab3f3' : '#168acd'),
+    section_bg_color: getColor('--card', isDark ? '#101010' : '#ffffff'),
+    section_header_text_color: getColor('--accent-foreground', isDark ? '#6ab3f3' : '#168acd'),
+    section_separator_color: getColor('--border', isDark ? '#ffffff14' : '#e7e7e7'),
+    subtitle_text_color: getColor('--muted-foreground', isDark ? '#7a7a7a' : '#999999'),
+    destructive_text_color: getColor('--destructive', isDark ? '#f16060' : '#cc2929'),
+    bottom_bar_bg_color: getColor('--background', isDark ? '#0f0f0f' : '#ffffff'),
+  };
+}
 
 function createMockStorage(initial: Record<string, string> = {}): CloudStorage {
   const store: Record<string, string> = { ...initial };
@@ -174,7 +189,7 @@ interface MockWebApp extends TgWebApp {
 export function createMockWebApp(options: DevModeOptions = {}): TgWebApp {
   const {
     user: userOverride,
-    colorScheme = 'dark',
+    colorScheme: schemeOverride,
     platform = 'tdesktop',
     version = '8.0',
     startParam,
@@ -183,7 +198,49 @@ export function createMockWebApp(options: DevModeOptions = {}): TgWebApp {
   } = options;
 
   const user: TgUser = { ...DEFAULT_USER, ...userOverride };
-  const theme = colorScheme === 'light' ? LIGHT_THEME : DARK_THEME;
+  const appTheme = getAppTheme();
+  
+  const isDark = schemeOverride 
+    ? schemeOverride === 'dark'
+    : appTheme.bg_color === '#0f0f0f' || appTheme.bg_color === '#17212b';
+  
+  const theme = schemeOverride
+    ? (schemeOverride === 'light' 
+        ? {
+            bg_color: '#ffffff',
+            secondary_bg_color: '#f1f1f1',
+            text_color: '#000000',
+            hint_color: '#999999',
+            link_color: '#2678b6',
+            button_color: '#2678b6',
+            button_text_color: '#ffffff',
+            header_bg_color: '#527da3',
+            accent_text_color: '#168acd',
+            section_bg_color: '#ffffff',
+            section_header_text_color: '#168acd',
+            section_separator_color: '#e7e7e7',
+            subtitle_text_color: '#999999',
+            destructive_text_color: '#cc2929',
+            bottom_bar_bg_color: '#ffffff',
+          }
+        : {
+            bg_color: '#17212b',
+            secondary_bg_color: '#232e3c',
+            text_color: '#f5f5f5',
+            hint_color: '#708499',
+            link_color: '#6ab3f3',
+            button_color: '#5288c1',
+            button_text_color: '#ffffff',
+            header_bg_color: '#17212b',
+            accent_text_color: '#6ab3f3',
+            section_bg_color: '#17212b',
+            section_header_text_color: '#6ab3f3',
+            section_separator_color: '#111921',
+            subtitle_text_color: '#708499',
+            destructive_text_color: '#ec3942',
+            bottom_bar_bg_color: '#17212b',
+          })
+    : appTheme;
 
   const listeners: Map<string, Array<(...args: unknown[]) => void>> = new Map();
 
@@ -205,15 +262,15 @@ export function createMockWebApp(options: DevModeOptions = {}): TgWebApp {
     initDataUnsafe: initData,
     version,
     platform,
-    colorScheme,
+    colorScheme: isDark ? 'dark' : 'light',
     themeParams: theme,
     isActive: true,
     isExpanded: true,
     viewportHeight: viewport?.height ?? window.innerHeight,
     viewportStableHeight: viewport?.stableHeight ?? window.innerHeight,
-    headerColor: theme.header_bg_color ?? theme.bg_color ?? '#17212b',
-    backgroundColor: theme.bg_color ?? '#17212b',
-    bottomBarColor: theme.bottom_bar_bg_color ?? theme.bg_color ?? '#17212b',
+    headerColor: theme.header_bg_color ?? theme.bg_color ?? (isDark ? '#0f0f0f' : '#ffffff'),
+    backgroundColor: theme.bg_color ?? (isDark ? '#0f0f0f' : '#ffffff'),
+    bottomBarColor: theme.bottom_bar_bg_color ?? theme.bg_color ?? (isDark ? '#0f0f0f' : '#ffffff'),
     isClosingConfirmationEnabled: false,
     isVerticalSwipesEnabled: false,
     isFullscreen: false,
@@ -275,6 +332,7 @@ export function createMockWebApp(options: DevModeOptions = {}): TgWebApp {
     showScanQrPopup(_params, cb) {
       const text = prompt('[tg-kit dev] Enter QR text:') ?? '';
       if (text) { cb?.(text); return true; }
+      return false;
     },
     closeScanQrPopup() {},
     readTextFromClipboard(cb) {
@@ -331,6 +389,11 @@ function _attachDevIndicator() {
   if (typeof document === 'undefined') return;
   if (document.getElementById('tg-kit-dev-indicator')) return;
 
+  const root = document.documentElement;
+  const styles = getComputedStyle(root);
+  const bgColor = styles.getPropertyValue('--primary').trim() || '#2678b6';
+  const textColor = styles.getPropertyValue('--primary-foreground').trim() || '#ffffff';
+
   const el = document.createElement('div');
   el.id = 'tg-kit-dev-indicator';
   el.textContent = 'tg-kit dev';
@@ -339,14 +402,15 @@ function _attachDevIndicator() {
     'bottom:8px',
     'right:8px',
     'z-index:999999',
-    'background:#2678b6',
-    'color:#fff',
+    `background:${bgColor}`,
+    `color:${textColor}`,
     'font:bold 11px/1 monospace',
     'padding:4px 8px',
     'border-radius:4px',
     'pointer-events:none',
     'opacity:0.85',
     'letter-spacing:0.5px',
+    'box-shadow:0 2px 4px rgba(0,0,0,0.2)',
   ].join(';');
 
   document.body.appendChild(el);
