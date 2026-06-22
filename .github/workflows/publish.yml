@@ -3,16 +3,17 @@ name: Publish to npm
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Version tag (e.g. v4.0.0)'
+        description: "Version tag (e.g. v4.0.0)"
         required: false
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
       id-token: write
@@ -24,16 +25,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Setup pnpm
-        uses: npm/action-setup@v4
-        with:
-          version: 10
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+          cache: npm
 
       - name: Install dependencies
-        run: npm install --frozen-lockfile
+        run: npm ci
 
       - name: Typecheck
         run: npm run typecheck
@@ -42,6 +39,6 @@ jobs:
         run: npm run build
 
       - name: Publish to npm
-        run: npm publish --access public --no-git-checks
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
