@@ -1,0 +1,79 @@
+{
+  "name": "@mr-m/tg-kit",
+  "version": "4.0.0",
+  "description": "Professional Telegram library: Mini Apps SDK (React hooks, providers, types) + Bot API server-side client. Works with React, Vue, vanilla JS, HTML, and Node.js.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./bot": {
+      "types": "./dist/bot/index.d.ts",
+      "import": "./dist/bot/index.mjs",
+      "require": "./dist/bot/index.js"
+    },
+    "./cdn": {
+      "types": "./dist/cdn/index.d.ts",
+      "import": "./dist/cdn/index.mjs",
+      "require": "./dist/cdn/index.js"
+    },
+    "./dev": {
+      "types": "./dist/dev/index.d.ts",
+      "import": "./dist/dev/index.mjs",
+      "require": "./dist/dev/index.js"
+    },
+    "./core": {
+      "types": "./dist/core/index.d.ts",
+      "import": "./dist/core/index.mjs",
+      "require": "./dist/core/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup && tsup src/browser.ts --format iife --globalName TgKit --no-dts --minify --out-dir dist",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": [
+    "telegram",
+    "telegram-web-app",
+    "telegram-mini-app",
+    "twa",
+    "mini-app",
+    "react",
+    "bot-api",
+    "telegram-bot",
+    "tg-kit"
+  ],
+  "author": "mr-m-apps",
+  "license": "MIT",
+  "sideEffects": false,
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "@types/react": "^18.0.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
