@@ -13,7 +13,7 @@
 
 ---
 
-[![NPM Version](https://img.shields.io/npm/v/@mr-m/telegram-webapp-kit)](https://www.npmjs.com/package/@mr-m/tg-kit)
+[![NPM Version](https://img.shields.io/npm/v/@mr-m/tg-kit)](https://www.npmjs.com/package/@mr-m/tg-kit)
 [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![React](https://img.shields.io/badge/react-18%2B-blue.svg)](#peerDependencies)
 [![Donate TON](https://img.shields.io/badge/Donate-TON-0098EA)](#support-the-project)
