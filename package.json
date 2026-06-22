@@ -50,9 +50,22 @@
     "react",
     "bot-api",
     "telegram-bot",
+    "nextjs", 
+    "tma", 
+    "hooks", 
+    "tg", 
+    "bot-telegram", 
     "tg-kit"
   ],
   "author": "mr-m-apps",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mr-m-apps/tg-kit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mr-m-apps/tg-kit/issues"
+  },
+  "homepage": "https://github.com/mr-m-apps/tg-kit#readme",
   "license": "MIT",
   "sideEffects": false,
   "peerDependencies": {
@@ -68,12 +81,12 @@
     }
   },
   "devDependencies": {
-    "@types/node": "^20.19.43",
+    "@types/node": "^24.0.0",
     "@types/react": "^18.0.0",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=24.0.0"
   }
 }
