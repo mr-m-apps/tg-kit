@@ -1,6 +1,6 @@
 # tg-kit
 
-> Professional Telegram library for Mini Apps and Bot API — v4.0.1
+> Professional Telegram library for Mini Apps and Bot API — v4.0.2
 
 **`@mr-m/tg-kit`** is a fully-typed, zero-dependency (at runtime) SDK that covers every aspect of the Telegram ecosystem:
 
