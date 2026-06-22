@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>tg-kit — Full API Demo</title>
+<style>
+:root {
+  color-scheme: light dark;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif;
+  background: var(--tg-theme-bg-color, #0e1621);
+  color: var(--tg-theme-text-color, #f5f5f5);
+  margin: 0;
+  padding: 16px;
+  padding-bottom: calc(32px + var(--tg-safe-area-inset-bottom, 0px));
+}
+header {
+  margin-bottom: 16px;
+}
+header h1 {
+  font-size: 18px;
+  margin: 0 0 4px;
+}
+header p {
+  font-size: 13px;
+  color: var(--tg-theme-hint-color, #708499);
+  margin: 0;
+}
+#status-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+  font-size: 12px;
+}
+.badge {
+  background: var(--tg-theme-secondary-bg-color, #1c2733);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 999px;
+  padding: 4px 10px;
+  color: var(--tg-theme-hint-color, #8aa0b4);
+}
+.badge.live {
+  color: #4caf50;
+  border-color: #4caf50;
+}
+.badge.mock {
+  color: #ff9800;
+  border-color: #ff9800;
+}
+#user-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+#user-card img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+#user-card .name {
+  font-size: 14px;
+  font-weight: 600;
+}
+#user-card .handle {
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #708499);
+}
+.panel {
+  background: var(--tg-theme-secondary-bg-color, #161f2c);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+.panel h2 {
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0 0 4px;
+  letter-spacing: 0.3px;
+}
+.panel p.desc {
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #708499);
+  margin: 0 0 10px;
+}
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.btn {
+  font-family: "SF Mono", Consolas, monospace;
+  font-size: 11px;
+  background: #16222f;
+  color: #8ec9f0;
+  border: 1px solid #223344;
+  border-radius: 8px;
+  padding: 7px 10px;
+  cursor: pointer;
+  line-height: 1.3;
+}
+.btn:active {
+  background: var(--tg-theme-button-color, #2678b6);
+  color: var(--tg-theme-button-text-color, #fff);
+}
+.btn.danger {
+  color: #ff6b6b;
+  border-color: #4a2222;
+}
+#log-panel {
+  position: sticky;
+  bottom: 0;
+}
+#log {
+  background: #060b11;
+  color: #79e07f;
+  font: 11px/1.6 "SF Mono", Consolas, monospace;
+  border-radius: 10px;
+  padding: 10px;
+  height: 200px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  border: 1px solid #1c2a38;
+}
+#clear-log {
+  margin-top: 8px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>tg-kit Full API Demo</h1>
+  <p>Every exported function of the browser build, exercised live. Each button label is the exact call it performs.</p>
+  <div id="status-line">
+    <span class="badge" id="env-badge">checking environment</span>
+    <span class="badge" id="version-badge">version</span>
+    <span class="badge" id="platform-badge">platform</span>
+  </div>
+  <div id="user-card"></div>
+</header>
+
+<section class="panel">
+  <h2>Identity</h2>
+  <p class="desc">Core read-only user helpers</p>
+  <div class="btn-row">
+    <button class="btn" onclick="actionGetWebApp()">TgKit.getWebApp()</button>
+    <button class="btn" onclick="actionIsInTelegram()">TgKit.isInTelegram()</button>
+    <button class="btn" onclick="actionIsVersionAtLeast()">TgKit.isVersionAtLeast('8.0')</button>
+    <button class="btn" onclick="actionGetRawUserData()">TgKit.getRawUserData()</button>
+    <button class="btn" onclick="actionGetUserDisplayName()">TgKit.getUserDisplayName(user)</button>
+    <button class="btn" onclick="actionGetUserIdentifier()">TgKit.getUserIdentifier(user)</button>
+    <button class="btn" onclick="actionGetUserAvatarUrl()">TgKit.getUserAvatarUrl(user)</button>
+    <button class="btn" onclick="actionGetUserInfoWithAvatar()">TgKit.getUserInfoWithAvatar()</button>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Main / Secondary Button</h2>
+  <p class="desc">wa.MainButton and wa.SecondaryButton, the BottomButton interface</p>
+  <div class="btn-row">
+    <button class="btn" onclick="actionMainButtonShow()">MainButton.setParams(...).show()</button>
+    <button class="btn" onclick="actionMainButtonProgress()">MainButton.showProgress()</button>
+    <button class="btn" onclick="actionMainButtonDisable()">MainButton.disable()</button>
+    <button class="btn" onclick="actionMainButtonHide()">MainButton.hide()</button>
+    <button class="btn" onclick="actionSecondaryButtonShow()">SecondaryButton.setParams(...).show()</button>
+    <button class="btn" onclick="actionSecondaryButtonHide()">SecondaryButton.hide()</button>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Back / Settings Button</h2>
+  <p class="desc">wa.BackButton and wa.SettingsButton</p>
+  <div class="btn-row">
+    <button class="btn" onclick="actionBackButtonShow()">BackButton.show().onClick(...)</button>
+    <button class="btn" onclick="actionBackButtonHide()">BackButton.hide()</button>
+    <button class="btn" onclick="actionSettingsButtonShow()">SettingsButton.show().onClick(...)</button>
+    <button class="btn" onclick="actionSettingsButtonHide()">SettingsButton.hide()</button>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Appearance</h2>
+  <p class="desc">Header, background and bottom bar colors</p>
+  <div class="btn-row">
+    <button class="btn" onclick="actionSetHeaderColor()">wa.setHeaderColor('#ff5733')</button>
+    <button class="btn" onclick="actionSetBackgroundColor()">wa.setBackgroundColor('#1c2733')</button>
+    <button class="btn" onclick="actionSetBottomBarColor()">wa.setBottomBarColor('#1c2733')</button>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Behavior Toggles</h2>
+  <p class="desc">Closing confirmation, vertical swipes, orientation lock, fullscreen</p>
+  <div class="btn-row">
+    <button class="btn" onclick="actionEnableClosingConfirmation()">wa.enableClosingConfirmation()</button>
+    <button class="btn" onclick="actionDisableClosingConfirmation()">wa.disableClosingConfirmation()</button>
+    <button class="btn" onclick="actionEnableVerticalSwipes()">wa.enableVerticalSwipes()</button>
+    <button class="btn" onclick="actionDisableVerticalSwipes()">wa.disableVerticalSwipes()</button>
+    <button class="btn" onclick="actionRequestFullscreen()">wa.requestFullscreen()</button>
+    <button class="btn" onclick="actionExitFullscreen()">wa.exitFullscreen()</button>
+    <button class="btn" onclick="actionLockOrientation()">wa.lockOrientation()</button>
+    <button class="btn" onclick="actionUnlockOrientation()">wa.unlockOrientation()</button>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Haptic Feedback</h2>
+  <p class="desc">TgKit.haptic wraps wa.HapticFeedback</p>
+  <div class="btn-row">
+    <button class="btn" onclick="TgKit.haptic.light(); logEvent('TgKit.haptic.light()')">.light()</button>
+    <button class="btn" onclick="TgKit.haptic.medium(); logEvent('TgKit.haptic.medium()')">.medium()</button>
+    <button class="btn" onclick="TgKit.haptic.heavy(); logEvent('TgKit.haptic.heavy()')">.heavy()</button>
+    <button class="btn" onclick="TgKit.haptic.rigid(); logEvent('TgKit.haptic.rigid()')">.rigid()</button>
+    <button class="btn" onclick="TgKit.haptic.soft(); logEvent('TgKit.haptic.soft()')">.soft()</button>
+    <button class="btn" onclick="TgKit.haptic.success(); logEvent('TgKit.haptic.success()')">.success()</button>
+    <button class="btn" onclick="TgKit.haptic.warning(); logEvent('TgKit.haptic.warning()')">.warning()</button>
+    <button class="btn" onclick="TgKit.haptic.error(); logEvent('TgKit.haptic.error()')">.error()</button>
+    <button class="btn" onclick="TgKit.haptic.selection(); logEvent('TgKit.haptic.selection()')">.selection()</button>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Dialogs</h2>
+  <p class="desc">TgKit.dialog wraps showAlert / showConfirm / showPopup</p>
+  <div class="btn-row">
+    <button class="btn" onclick="actionDialogAlert()">TgKit.dialog.alert(message)</button>
+    <button class="btn" onclick="actionDialogConfirm()">TgKit.dialog.confirm(message)</button>
+    <button class="btn" onclick="actionDialogPopup()">TgKit.dialog.popup(params)</button>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>CloudStorage</h2>
+  <p class="desc">Synced to the user's Telegram account, all platforms</p>
+  <div class="btn-row">
+    <button class="btn" onclick="actionCloudSet()">TgKit.cloudStorage.setItem(key, value)</button>
+    <button class="btn" onclick="actionCloudGet()">TgKit.cloudStorage.getItem(key)</button>
+    <button class="btn" onclick="actionCloudGetItems()">TgKit.cloudStorage.getItems(keys)</button>
+    <button class="btn" onclick="actionCloudKeys()">TgKit.cloudStorage.getKeys()</button>
+    <button class="btn" onclick="actionCloudRemove()">TgKit.cloudStorage.removeItem(key)</button>
+    <button class="btn danger" onclick="actionCloudRemoveAll()">TgKit.cloudStorage.removeItems(keys)</button>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>DeviceStorage / SecureStorage</h2>
+  <p class="desc">Bot API 9.0+, local to the device, SecureStorage is encrypted</p>
+  <div class="btn-row">
+    <button class="btn" onclick="actionDeviceStorageSet()">TgKit.deviceStorage.setItem(key, value)</button>
+    <button class="btn" onclick="actionDeviceStorageGet()">TgKit.deviceStorage.getItem(key)</button>
+    <button class="btn" onclick="actionDeviceStorageRemove()">TgKit.deviceStorage.removeItem(key)</button>
+    <button class="btn danger" onclick="actionDeviceStorageClear()">TgKit.deviceStorage.clear()</button>
+    <button class="btn" onclick="actionSecureStorageSet()">TgKit.secureStorage.setItem(key, value)</button>
+    <button class="btn" onclick="actionSecureStorageGet()">TgKit.secureStorage.getItem(key)</button>
+    <button class="btn" onclick="actionSecureStorageRestore()">TgKit.secureStorage.restoreItem(key)</button>
+    <button class="btn" onclick="actionSecureStorageRemove()">TgKit.secureStorage.removeItem(key)</button>
+    <button class="btn danger" onclick="actionSecureStorageClear()">TgKit.secureStorage.clear()</button>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>BiometricManager</h2>
+  <p class="desc">Bot API 7.2+</p>
+  <div class="btn-row">
+    <button class="btn" onclick="actionBiometricInit()">TgKit.biometric.init()</button>
+    <button class="btn" onclick="actionBiometricRequestAccess()">TgKit.biometric.requestAccess(reason)</button>
+    <button class="btn" onclick="actionBiometricAuthenticate()">TgKit.biometric.authenticate(reason)</button>
+    <button class="btn" onclick="actionBiometricUpdateToken()">TgKit.biometric.updateBiometricToken(token)</button>
+    <button class="btn" onclick="actionBiometricOpenSettings()">TgKit.biometric.openSettings()</button>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>LocationManager</h2>
+  <p class="desc">Bot API 8.0+</p>
+  <div class="btn-row">
+    <button class="btn" onclick="actionLocationInit()">TgKit.location.init()</button>
+    <button class="btn" onclick="actionLocationGet()">TgKit.location.getLocation()</button>
+    <button class="btn" onclick="actionLocationOpenSettings()">TgKit.location.openSettings()</button>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Sensors</h2>
+  <p class="desc">Accelerometer, Gyroscope, DeviceOrientation are raw wa.* objects, not wrapped by tg-kit core</p>
+  <div class="btn-row">
+    <button class="btn" onclick="actionAccelerometerStart()">wa.Accelerometer.start(...)</button>
+    <button class="btn" onclick="actionAccelerometerStop()">wa.Accelerometer.stop()</button>
+    <button class="btn" onclick="actionGyroscopeStart()">wa.Gyroscope.start(...)</button>
+    <button class="btn" onclick="actionGyroscopeStop()">wa.Gyroscope.stop()</button>
+    <button class="btn" onclick="actionDeviceOrientationStart()">wa.DeviceOrientation.start(...)</button>
+    <button class="btn" onclick="actionDeviceOrientationStop()">wa.DeviceOrientation.stop()</button>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Links, Sharing, Invoices</h2>
+  <p class="desc">Navigation and payment helpers</p>
+  <div class="btn-row">
+    <button class="btn" onclick="actionOpenExternalLink()">TgKit.openExternalLink(url)</button>
+    <button class="btn" onclick="actionOpenTelegramLink()">TgKit.openTelegramLink(url)</button>
+    <button class="btn" onclick="actionOpenInvoice()">TgKit.openInvoice(url)</button>
+    <button class="btn" onclick="actionSwitchInlineQuery()">TgKit.switchInlineQuery(query, types)</button>
+    <button class="btn" onclick="actionShareToStory()">TgKit.shareToStory(mediaUrl, params)</button>
+    <button class="btn" onclick="actionShareMessage()">TgKit.shareMessage(msgId)</button>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Emoji Status, Files, Permissions</h2>
+  <p class="desc">Bot API 6.9+ / 8.0+ depending on the method</p>
+  <div class="btn-row">
+    <button class="btn" onclick="actionSetEmojiStatus()">TgKit.setEmojiStatus(id, params)</button>
+    <button class="btn" onclick="actionRequestEmojiStatusAccess()">TgKit.requestEmojiStatusAccess()</button>
+    <button class="btn" onclick="actionDownloadFile()">TgKit.downloadFile(params)</button>
+    <button class="btn" onclick="actionRequestWriteAccess()">TgKit.requestWriteAccess()</button>
+    <button class="btn" onclick="actionRequestContact()">TgKit.requestContact()</button>
+    <button class="btn" onclick="actionRequestChat()">TgKit.requestChat(params)</button>
+    <button class="btn" onclick="actionReadClipboard()">TgKit.readClipboard()</button>
+    <button class="btn" onclick="actionScanQr()">TgKit.scanQr(text)</button>
+    <button class="btn" onclick="actionHideKeyboard()">TgKit.hideKeyboard()</button>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Home Screen / Lifecycle</h2>
+  <p class="desc">Raw wa.* methods reached through TgKit.getWebApp()</p>
+  <div class="btn-row">
+    <button class="btn" onclick="actionAddToHomeScreen()">wa.addToHomeScreen()</button>
+    <button class="btn" onclick="actionCheckHomeScreenStatus()">wa.checkHomeScreenStatus(cb)</button>
+    <button class="btn" onclick="actionSendData()">wa.sendData(json)</button>
+    <button class="btn danger" onclick="actionClose()">wa.close()</button>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>CDN Loader</h2>
+  <p class="desc">TgKit.loadTelegramScript was already used to bootstrap this page</p>
+  <div class="btn-row">
+    <button class="btn" onclick="actionLoadTelegramScriptAgain()">TgKit.loadTelegramScript(options)</button>
+    <button class="btn" onclick="actionGetTelegramCdnUrl()">TgKit.getTelegramCdnUrl()</button>
+    <button class="btn" onclick="actionInjectTelegramScriptTag()">TgKit.injectTelegramScriptTag(options)</button>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Dev Mode</h2>
+  <p class="desc">Lets this page run fully outside Telegram with a mocked WebApp</p>
+  <div class="btn-row">
+    <button class="btn" onclick="actionIsDevMode()">TgKit.isDevMode()</button>
+    <button class="btn" onclick="actionReinstallDevMode()">TgKit.installDevMode({ force: true, ... })</button>
+    <button class="btn" onclick="actionCreateMockWebApp()">TgKit.createMockWebApp(options)</button>
+  </div>
+</section>
+
+<section class="panel" id="log-panel">
+  <h2>Live Log</h2>
+  <p class="desc">Every action above and every wa.onEvent firing is printed here</p>
+  <div id="log"></div>
+  <button class="btn" id="clear-log" onclick="document.getElementById('log').textContent = ''">clear</button>
+</section>
+
+<script src="https://unpkg.com/@mr-m/tg-kit/dist/browser.global.js"></script>
+  
+<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+<script> eruda.init(); </script>
+  
+<script>
+
+function logEvent(label, data) {
+  var el = document.getElementById('log');
+  var time = new Date().toLocaleTimeString();
+  var line = data === undefined ? '[' + time + '] ' + label : '[' + time + '] ' + label + ' -> ' + JSON.stringify(data);
+  el.textContent += line + '\n';
+  el.scrollTop = el.scrollHeight;
+}
+
+function renderStatus() {
+  var wa = TgKit.getWebApp();
+  var inTelegram = TgKit.isInTelegram();
+  var devMode = TgKit.isDevMode();
+  var envBadge = document.getElementById('env-badge');
+  envBadge.textContent = inTelegram ? 'running inside Telegram' : (devMode ? 'dev mode mock active' : 'outside Telegram, no mock');
+  envBadge.className = 'badge ' + (inTelegram ? 'live' : (devMode ? 'mock' : ''));
+  document.getElementById('version-badge').textContent = 'Bot API ' + wa.version;
+  document.getElementById('platform-badge').textContent = wa.platform;
+}
+
+function renderUser() {
+  var info = TgKit.getUserInfoWithAvatar();
+  var card = document.getElementById('user-card');
+  card.innerHTML =
+    '<img src="' + info.avatarUrl + '" alt="" />' +
+    '<div><div class="name">' + info.displayName + '</div>' +
+    '<div class="handle">@' + info.identifier + '</div></div>';
+}
+
+function bindLiveEvents() {
+  var wa = TgKit.getWebApp();
+  var types = [
+    'themeChanged', 'viewportChanged', 'safeAreaChanged', 'contentSafeAreaChanged',
+    'fullscreenChanged', 'fullscreenFailed', 'activated', 'deactivated',
+    'mainButtonClicked', 'secondaryButtonClicked', 'backButtonClicked', 'settingsButtonClicked',
+    'popupClosed', 'invoiceClosed', 'qrTextReceived', 'scanQrPopupClosed', 'clipboardTextReceived',
+    'writeAccessRequested', 'contactRequested', 'biometricManagerUpdated', 'biometricAuthRequested',
+    'biometricTokenUpdated', 'homeScreenAdded', 'homeScreenChecked', 'locationManagerUpdated',
+    'locationRequested', 'shareMessageSent', 'shareMessageFailed', 'emojiStatusSet', 'emojiStatusFailed',
+    'emojiStatusAccessRequested', 'fileDownloadRequested', 'accelerometerStarted', 'accelerometerStopped',
+    'accelerometerChanged', 'accelerometerFailed', 'gyroscopeStarted', 'gyroscopeStopped', 'gyroscopeChanged',
+    'gyroscopeFailed', 'deviceOrientationStarted', 'deviceOrientationStopped', 'deviceOrientationChanged',
+    'deviceOrientationFailed'
+  ];
+  types.forEach(function (type) {
+    wa.onEvent(type, function () {
+      logEvent('wa.onEvent fired: ' + type, Array.prototype.slice.call(arguments));
+    });
+  });
+}
+
+async function bootstrap() {
+  await TgKit.loadTelegramScript({ async: true });
+  if (!TgKit.isInTelegram()) {
+    TgKit.installDevMode({
+      user: { id: 99000111, first_name: 'Dev', last_name: 'User', username: 'tgkit_dev', is_premium: true },
+      colorScheme: 'dark',
+      platform: 'tdesktop',
+      startParam: 'demo_start',
+      showIndicator: true
+    });
+  }
+  var wa = TgKit.getWebApp();
+  wa.ready();
+  wa.expand();
+  renderStatus();
+  renderUser();
+  bindLiveEvents();
+  logEvent('bootstrap complete');
+}
+
+function actionGetWebApp() {
+  var wa = TgKit.getWebApp();
+  logEvent('TgKit.getWebApp()', { version: wa.version, platform: wa.platform, colorScheme: wa.colorScheme });
+}
+function actionIsInTelegram() {
+  logEvent('TgKit.isInTelegram()', TgKit.isInTelegram());
+}
+function actionIsVersionAtLeast() {
+  logEvent("TgKit.isVersionAtLeast('8.0')", TgKit.isVersionAtLeast('8.0'));
+}
+function actionGetRawUserData() {
+  logEvent('TgKit.getRawUserData()', TgKit.getRawUserData());
+}
+function actionGetUserDisplayName() {
+  var user = TgKit.getRawUserData();
+  logEvent('TgKit.getUserDisplayName(user)', TgKit.getUserDisplayName(user));
+}
+function actionGetUserIdentifier() {
+  var user = TgKit.getRawUserData();
+  logEvent('TgKit.getUserIdentifier(user)', TgKit.getUserIdentifier(user));
+}
+function actionGetUserAvatarUrl() {
+  var user = TgKit.getRawUserData();
+  logEvent('TgKit.getUserAvatarUrl(user)', TgKit.getUserAvatarUrl(user));
+}
+function actionGetUserInfoWithAvatar() {
+  logEvent('TgKit.getUserInfoWithAvatar()', TgKit.getUserInfoWithAvatar());
+}
+
+function actionMainButtonShow() {
+  var wa = TgKit.getWebApp();
+  wa.MainButton.setParams({ text: 'CONTINUE', color: '#2AABEE', text_color: '#ffffff', is_visible: true, is_active: true });
+  wa.MainButton.onClick(function () { logEvent('MainButton clicked'); });
+  logEvent('MainButton shown');
+}
+function actionMainButtonProgress() {
+  TgKit.getWebApp().MainButton.showProgress(true);
+  logEvent('MainButton.showProgress(true)');
+}
+function actionMainButtonDisable() {
+  TgKit.getWebApp().MainButton.disable();
+  logEvent('MainButton.disable()');
+}
+function actionMainButtonHide() {
+  TgKit.getWebApp().MainButton.hideProgress();
+  TgKit.getWebApp().MainButton.hide();
+  logEvent('MainButton hidden');
+}
+function actionSecondaryButtonShow() {
+  var wa = TgKit.getWebApp();
+  wa.SecondaryButton.setParams({ text: 'CANCEL', is_visible: true, position: 'left' });
+  wa.SecondaryButton.onClick(function () { logEvent('SecondaryButton clicked'); });
+  logEvent('SecondaryButton shown');
+}
+function actionSecondaryButtonHide() {
+  TgKit.getWebApp().SecondaryButton.hide();
+  logEvent('SecondaryButton hidden');
+}
+
+function actionBackButtonShow() {
+  var wa = TgKit.getWebApp();
+  wa.BackButton.show();
+  wa.BackButton.onClick(function () { logEvent('BackButton clicked'); });
+  logEvent('BackButton shown');
+}
+function actionBackButtonHide() {
+  TgKit.getWebApp().BackButton.hide();
+  logEvent('BackButton hidden');
+}
+function actionSettingsButtonShow() {
+  var wa = TgKit.getWebApp();
+  if (!wa.SettingsButton) return logEvent('SettingsButton not supported on this client');
+  wa.SettingsButton.show();
+  wa.SettingsButton.onClick(function () { logEvent('SettingsButton clicked'); });
+  logEvent('SettingsButton shown');
+}
+function actionSettingsButtonHide() {
+  var wa = TgKit.getWebApp();
+  if (!wa.SettingsButton) return logEvent('SettingsButton not supported on this client');
+  wa.SettingsButton.hide();
+  logEvent('SettingsButton hidden');
+}
+
+function actionSetHeaderColor() {
+  TgKit.getWebApp().setHeaderColor('#ff5733');
+  logEvent("wa.setHeaderColor('#ff5733')");
+}
+function actionSetBackgroundColor() {
+  TgKit.getWebApp().setBackgroundColor('#1c2733');
+  logEvent("wa.setBackgroundColor('#1c2733')");
+}
+function actionSetBottomBarColor() {
+  TgKit.getWebApp().setBottomBarColor('#1c2733');
+  logEvent("wa.setBottomBarColor('#1c2733')");
+}
+
+function actionEnableClosingConfirmation() {
+  TgKit.getWebApp().enableClosingConfirmation();
+  logEvent('wa.enableClosingConfirmation()');
+}
+function actionDisableClosingConfirmation() {
+  TgKit.getWebApp().disableClosingConfirmation();
+  logEvent('wa.disableClosingConfirmation()');
+}
+function actionEnableVerticalSwipes() {
+  TgKit.getWebApp().enableVerticalSwipes();
+  logEvent('wa.enableVerticalSwipes()');
+}
+function actionDisableVerticalSwipes() {
+  TgKit.getWebApp().disableVerticalSwipes();
+  logEvent('wa.disableVerticalSwipes()');
+}
+function actionRequestFullscreen() {
+  TgKit.getWebApp().requestFullscreen();
+  logEvent('wa.requestFullscreen()');
+}
+function actionExitFullscreen() {
+  TgKit.getWebApp().exitFullscreen();
+  logEvent('wa.exitFullscreen()');
+}
+function actionLockOrientation() {
+  TgKit.getWebApp().lockOrientation();
+  logEvent('wa.lockOrientation()');
+}
+function actionUnlockOrientation() {
+  TgKit.getWebApp().unlockOrientation();
+  logEvent('wa.unlockOrientation()');
+}
+
+function actionDialogAlert() {
+  TgKit.dialog.alert('Hello from tg-kit').then(function () {
+    logEvent('TgKit.dialog.alert() resolved');
+  });
+}
+function actionDialogConfirm() {
+  TgKit.dialog.confirm('Are you sure?').then(function (ok) {
+    logEvent('TgKit.dialog.confirm() resolved', ok);
+  });
+}
+function actionDialogPopup() {
+  TgKit.dialog.popup({
+    title: 'Choose an option',
+    message: 'This is a native Telegram popup',
+    buttons: [
+      { id: 'ok', type: 'default', text: 'OK' },
+      { id: 'cancel', type: 'cancel', text: 'Cancel' }
+    ]
+  }).then(function (buttonId) {
+    logEvent('TgKit.dialog.popup() resolved', buttonId);
+  });
+}
+
+function actionCloudSet() {
+  TgKit.cloudStorage.setItem('demo_key', 'value_' + Date.now()).then(function (ok) {
+    logEvent('TgKit.cloudStorage.setItem() resolved', ok);
+  }).catch(function (e) { logEvent('cloudStorage.setItem error', e.message); });
+}
+function actionCloudGet() {
+  TgKit.cloudStorage.getItem('demo_key').then(function (value) {
+    logEvent('TgKit.cloudStorage.getItem() resolved', value);
+  }).catch(function (e) { logEvent('cloudStorage.getItem error', e.message); });
+}
+function actionCloudGetItems() {
+  TgKit.cloudStorage.getItems(['demo_key']).then(function (values) {
+    logEvent('TgKit.cloudStorage.getItems() resolved', values);
+  }).catch(function (e) { logEvent('cloudStorage.getItems error', e.message); });
+}
+function actionCloudKeys() {
+  TgKit.cloudStorage.getKeys().then(function (keys) {
+    logEvent('TgKit.cloudStorage.getKeys() resolved', keys);
+  }).catch(function (e) { logEvent('cloudStorage.getKeys error', e.message); });
+}
+function actionCloudRemove() {
+  TgKit.cloudStorage.removeItem('demo_key').then(function (ok) {
+    logEvent('TgKit.cloudStorage.removeItem() resolved', ok);
+  }).catch(function (e) { logEvent('cloudStorage.removeItem error', e.message); });
+}
+function actionCloudRemoveAll() {
+  TgKit.cloudStorage.getKeys().then(function (keys) {
+    return TgKit.cloudStorage.removeItems(keys);
+  }).then(function (ok) {
+    logEvent('TgKit.cloudStorage.removeItems() resolved', ok);
+  }).catch(function (e) { logEvent('cloudStorage.removeItems error', e.message); });
+}
+
+function actionDeviceStorageSet() {
+  TgKit.deviceStorage.setItem('device_key', 'device_value').then(function (ok) {
+    logEvent('TgKit.deviceStorage.setItem() resolved', ok);
+  }).catch(function (e) { logEvent('deviceStorage.setItem error', e.message); });
+}
+function actionDeviceStorageGet() {
+  TgKit.deviceStorage.getItem('device_key').then(function (value) {
+    logEvent('TgKit.deviceStorage.getItem() resolved', value);
+  }).catch(function (e) { logEvent('deviceStorage.getItem error', e.message); });
+}
+function actionDeviceStorageRemove() {
+  TgKit.deviceStorage.removeItem('device_key').then(function (ok) {
+    logEvent('TgKit.deviceStorage.removeItem() resolved', ok);
+  }).catch(function (e) { logEvent('deviceStorage.removeItem error', e.message); });
+}
+function actionDeviceStorageClear() {
+  TgKit.deviceStorage.clear().then(function (ok) {
+    logEvent('TgKit.deviceStorage.clear() resolved', ok);
+  }).catch(function (e) { logEvent('deviceStorage.clear error', e.message); });
+}
+function actionSecureStorageSet() {
+  TgKit.secureStorage.setItem('secure_key', 'secure_value').then(function (ok) {
+    logEvent('TgKit.secureStorage.setItem() resolved', ok);
+  }).catch(function (e) { logEvent('secureStorage.setItem error', e.message); });
+}
+function actionSecureStorageGet() {
+  TgKit.secureStorage.getItem('secure_key').then(function (result) {
+    logEvent('TgKit.secureStorage.getItem() resolved', result);
+  }).catch(function (e) { logEvent('secureStorage.getItem error', e.message); });
+}
+function actionSecureStorageRestore() {
+  TgKit.secureStorage.restoreItem('secure_key').then(function (value) {
+    logEvent('TgKit.secureStorage.restoreItem() resolved', value);
+  }).catch(function (e) { logEvent('secureStorage.restoreItem error', e.message); });
+}
+function actionSecureStorageRemove() {
+  TgKit.secureStorage.removeItem('secure_key').then(function (ok) {
+    logEvent('TgKit.secureStorage.removeItem() resolved', ok);
+  }).catch(function (e) { logEvent('secureStorage.removeItem error', e.message); });
+}
+function actionSecureStorageClear() {
+  TgKit.secureStorage.clear().then(function (ok) {
+    logEvent('TgKit.secureStorage.clear() resolved', ok);
+  }).catch(function (e) { logEvent('secureStorage.clear error', e.message); });
+}
+
+function actionBiometricInit() {
+  TgKit.biometric.init().then(function () {
+    logEvent('TgKit.biometric.init() resolved');
+  }).catch(function (e) { logEvent('biometric.init error', e.message); });
+}
+function actionBiometricRequestAccess() {
+  TgKit.biometric.requestAccess('Authenticate to continue').then(function (granted) {
+    logEvent('TgKit.biometric.requestAccess() resolved', granted);
+  }).catch(function (e) { logEvent('biometric.requestAccess error', e.message); });
+}
+function actionBiometricAuthenticate() {
+  TgKit.biometric.authenticate('Confirm your identity').then(function (result) {
+    logEvent('TgKit.biometric.authenticate() resolved', result);
+  }).catch(function (e) { logEvent('biometric.authenticate error', e.message); });
+}
+function actionBiometricUpdateToken() {
+  TgKit.biometric.updateBiometricToken('demo_token').then(function (ok) {
+    logEvent('TgKit.biometric.updateBiometricToken() resolved', ok);
+  }).catch(function (e) { logEvent('biometric.updateBiometricToken error', e.message); });
+}
+function actionBiometricOpenSettings() {
+  TgKit.biometric.openSettings();
+  logEvent('TgKit.biometric.openSettings()');
+}
+
+function actionLocationInit() {
+  TgKit.location.init().then(function () {
+    logEvent('TgKit.location.init() resolved');
+  }).catch(function (e) { logEvent('location.init error', e.message); });
+}
+function actionLocationGet() {
+  TgKit.location.getLocation().then(function (data) {
+    logEvent('TgKit.location.getLocation() resolved', data);
+  }).catch(function (e) { logEvent('location.getLocation error', e.message); });
+}
+function actionLocationOpenSettings() {
+  TgKit.location.openSettings();
+  logEvent('TgKit.location.openSettings()');
+}
+
+function actionAccelerometerStart() {
+  var wa = TgKit.getWebApp();
+  if (!wa.Accelerometer) return logEvent('wa.Accelerometer not supported on this client');
+  wa.Accelerometer.start({ refresh_rate: 60 }, function (started) {
+    logEvent('wa.Accelerometer.start() started', started);
+  });
+}
+function actionAccelerometerStop() {
+  var wa = TgKit.getWebApp();
+  if (!wa.Accelerometer) return logEvent('wa.Accelerometer not supported on this client');
+  wa.Accelerometer.stop(function (stopped) {
+    logEvent('wa.Accelerometer.stop() stopped', stopped);
+  });
+}
+function actionGyroscopeStart() {
+  var wa = TgKit.getWebApp();
+  if (!wa.Gyroscope) return logEvent('wa.Gyroscope not supported on this client');
+  wa.Gyroscope.start({ refresh_rate: 60 }, function (started) {
+    logEvent('wa.Gyroscope.start() started', started);
+  });
+}
+function actionGyroscopeStop() {
+  var wa = TgKit.getWebApp();
+  if (!wa.Gyroscope) return logEvent('wa.Gyroscope not supported on this client');
+  wa.Gyroscope.stop(function (stopped) {
+    logEvent('wa.Gyroscope.stop() stopped', stopped);
+  });
+}
+function actionDeviceOrientationStart() {
+  var wa = TgKit.getWebApp();
+  if (!wa.DeviceOrientation) return logEvent('wa.DeviceOrientation not supported on this client');
+  wa.DeviceOrientation.start({ refresh_rate: 60, need_absolute: true }, function (started) {
+    logEvent('wa.DeviceOrientation.start() started', started);
+  });
+}
+function actionDeviceOrientationStop() {
+  var wa = TgKit.getWebApp();
+  if (!wa.DeviceOrientation) return logEvent('wa.DeviceOrientation not supported on this client');
+  wa.DeviceOrientation.stop(function (stopped) {
+    logEvent('wa.DeviceOrientation.stop() stopped', stopped);
+  });
+}
+
+function actionOpenExternalLink() {
+  TgKit.openExternalLink('https://telegram.org', false);
+  logEvent("TgKit.openExternalLink('https://telegram.org')");
+}
+function actionOpenTelegramLink() {
+  TgKit.openTelegramLink('https://t.me/eogri');
+  logEvent("TgKit.openTelegramLink('https://t.me/eogri')");
+}
+function actionOpenInvoice() {
+  TgKit.openInvoice('https://t.me/invoice/demo').then(function (status) {
+    logEvent('TgKit.openInvoice() resolved', status);
+  }).catch(function (e) { logEvent('openInvoice error', e.message); });
+}
+function actionSwitchInlineQuery() {
+  TgKit.switchInlineQuery('hello from tg-kit', ['users', 'groups']);
+  logEvent('TgKit.switchInlineQuery(...)');
+}
+function actionShareToStory() {
+  TgKit.shareToStory('https://example.com/image.jpg', {
+    text: 'Shared with tg-kit',
+    widget_link: { url: 'https://t.me/eogri', name: '@eogri' }
+  });
+  logEvent('TgKit.shareToStory(...)');
+}
+function actionShareMessage() {
+  TgKit.shareMessage('demo_prepared_message_id').then(function (ok) {
+    logEvent('TgKit.shareMessage() resolved', ok);
+  }).catch(function (e) { logEvent('shareMessage error', e.message); });
+}
+
+function actionSetEmojiStatus() {
+  TgKit.setEmojiStatus('5361800992937833624', { duration: 3600 }).then(function (ok) {
+    logEvent('TgKit.setEmojiStatus() resolved', ok);
+  }).catch(function (e) { logEvent('setEmojiStatus error', e.message); });
+}
+function actionRequestEmojiStatusAccess() {
+  TgKit.requestEmojiStatusAccess().then(function (granted) {
+    logEvent('TgKit.requestEmojiStatusAccess() resolved', granted);
+  }).catch(function (e) { logEvent('requestEmojiStatusAccess error', e.message); });
+}
+function actionDownloadFile() {
+  TgKit.downloadFile({ url: 'https://example.com/file.pdf', file_name: 'document.pdf' }).then(function (accepted) {
+    logEvent('TgKit.downloadFile() resolved', accepted);
+  }).catch(function (e) { logEvent('downloadFile error', e.message); });
+}
+function actionRequestWriteAccess() {
+  TgKit.requestWriteAccess().then(function (granted) {
+    logEvent('TgKit.requestWriteAccess() resolved', granted);
+  }).catch(function (e) { logEvent('requestWriteAccess error', e.message); });
+}
+function actionRequestContact() {
+  TgKit.requestContact().then(function (shared) {
+    logEvent('TgKit.requestContact() resolved', shared);
+  }).catch(function (e) { logEvent('requestContact error', e.message); });
+}
+function actionRequestChat() {
+  TgKit.requestChat({
+    request_id: 1,
+    chat_is_channel: false,
+    request_title: true,
+    request_username: true,
+    request_photo: true
+  }).then(function (ok) {
+    logEvent('TgKit.requestChat() resolved', ok);
+  }).catch(function (e) { logEvent('requestChat error', e.message); });
+}
+function actionReadClipboard() {
+  TgKit.readClipboard().then(function (text) {
+    logEvent('TgKit.readClipboard() resolved', text);
+  }).catch(function (e) { logEvent('readClipboard error', e.message); });
+}
+function actionScanQr() {
+  TgKit.scanQr('Point the camera at a QR code').then(function (result) {
+    logEvent('TgKit.scanQr() resolved', result);
+  }).catch(function (e) { logEvent('scanQr error', e.message); });
+}
+function actionHideKeyboard() {
+  TgKit.hideKeyboard();
+  logEvent('TgKit.hideKeyboard()');
+}
+
+function actionAddToHomeScreen() {
+  TgKit.getWebApp().addToHomeScreen();
+  logEvent('wa.addToHomeScreen()');
+}
+function actionCheckHomeScreenStatus() {
+  TgKit.getWebApp().checkHomeScreenStatus(function (status) {
+    logEvent('wa.checkHomeScreenStatus() resolved', status);
+  });
+}
+function actionSendData() {
+  TgKit.getWebApp().sendData(JSON.stringify({ source: 'tg-kit-demo', timestamp: Date.now() }));
+  logEvent('wa.sendData(...) called, only works inside a real bot flow');
+}
+function actionClose() {
+  logEvent('wa.close() called, the Mini App will now close if running inside Telegram');
+  TgKit.getWebApp().close();
+}
+
+function actionLoadTelegramScriptAgain() {
+  TgKit.loadTelegramScript({ async: true }).then(function () {
+    logEvent('TgKit.loadTelegramScript() resolved, script already present or freshly loaded');
+  });
+}
+function actionGetTelegramCdnUrl() {
+  logEvent('TgKit.getTelegramCdnUrl()', TgKit.getTelegramCdnUrl());
+}
+function actionInjectTelegramScriptTag() {
+  logEvent('TgKit.injectTelegramScriptTag({ async: true })', TgKit.injectTelegramScriptTag({ async: true }));
+}
+
+function actionIsDevMode() {
+  logEvent('TgKit.isDevMode()', TgKit.isDevMode());
+}
+function actionReinstallDevMode() {
+  var installed = TgKit.installDevMode({
+    force: true,
+    user: { id: Math.floor(Math.random() * 1000000), first_name: 'Random', last_name: 'Tester', username: 'random_' + Date.now(), is_premium: Math.random() > 0.5 },
+    colorScheme: Math.random() > 0.5 ? 'light' : 'dark',
+    platform: 'ios',
+    showIndicator: true
+  });
+  logEvent('TgKit.installDevMode({ force: true, ... })', installed);
+  renderStatus();
+  renderUser();
+}
+function actionCreateMockWebApp() {
+  var mock = TgKit.createMockWebApp({ user: { id: 1, first_name: 'Mock' }, colorScheme: 'light' });
+  logEvent('TgKit.createMockWebApp(options)', { version: mock.version, platform: mock.platform, colorScheme: mock.colorScheme });
+}
+
+bootstrap();
+</script>
+</body>
+</html>
