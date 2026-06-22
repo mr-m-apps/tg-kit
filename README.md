@@ -559,7 +559,9 @@ Your support helps fund:
 
 Support the project with Toncoin (TON):
 
+```text
 UQBxktI5AXqKPEV3jLBW5LSmFoRNqGbsuiO6e1Tq8A1EB-K4
+```
 
 ### Contact
 
