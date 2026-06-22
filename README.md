@@ -565,7 +565,7 @@ UQBxktI5AXqKPEV3jLBW5LSmFoRNqGbsuiO6e1Tq8A1EB-K4
 
 ### Contact
 
-Telegram: @eogri
+Telegram: [Mr. M](https://t.me/eogri)
 
 Questions, feature requests, sponsorships, or business inquiries are always welcome.
 
