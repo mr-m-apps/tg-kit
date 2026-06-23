@@ -148,7 +148,7 @@ If `@mr-m/tg-kit` helps you ship — consider supporting development ❤️
 
 | Method | Address / Link |
 |---|---|
-| 💎 **Toncoin (TON)** | `UQBxktI5AXqKPEV3jLBW5LSmFoRNqGbsuiO6e1Tq8A1EB-K4` |
+| 💎 **Toncoin (TON)** | `mr-m-applications.ton` |
 | ⭐ **GitHub Star** | [github.com/mr-m-apps/tg-kit](https://github.com/mr-m-apps/tg-kit) |
 | 💬 **Telegram** | [@eogri](https://t.me/eogri) |
 
