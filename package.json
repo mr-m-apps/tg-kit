@@ -1,6 +1,6 @@
 {
   "name": "@mr-m/tg-kit",
-  "version": "4.9.9",
+  "version": "4.9.10",
   "description": "Professional Telegram library: Mini Apps SDK (React hooks, providers, types) + Bot API server-side client. Works with React, Vue, vanilla JS, HTML, and Node.js.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -30,7 +30,7 @@
       "types": "./dist/core/index.d.ts",
       "import": "./dist/core/index.mjs",
       "require": "./dist/core/index.js"
-    }, 
+    },
     "./server": {
       "types": "./dist/server/index.d.ts",
       "import": "./dist/server/index.mjs",
@@ -63,7 +63,7 @@
     "nextjs",
     "tma",
     "hooks",
-    "server", 
+    "server",
     "tg",
     "bot-telegram",
     "tg-kit"
