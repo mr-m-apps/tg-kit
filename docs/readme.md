@@ -12,7 +12,7 @@ sides of the platform in a single library:
   Media, Forum topics, Stickers, Live location, …), update `Dispatcher`,
   long-polling helper.
 - **Server-side `initData` validation** — Node **and** Edge runtimes,
-  HMAC `hash` check **plus** third-party Ed25519 `signature` validation.
+  HMAC `hash` check
 
 No dependencies. ESM + CJS. Tree-shakable. SSR-safe.
 
@@ -278,21 +278,6 @@ const result = await validateInitData(initData, process.env.BOT_TOKEN!, {
 });
 ```
 
-### Third-party Ed25519 signature
-
-Telegram also adds an Ed25519 `signature` field to `initData` so a
-third party (who does not know your bot token) can verify the payload.
-
-```ts
-await validateInitData(initData, '<bot-token-or-empty>', {
-  verifySignature: true,
-  publicKey: TELEGRAM_ED25519_PEM,
-  botId: 1234567890,           // numeric prefix of your bot token
-  runtime: 'edge',
-});
-// result.signatureValid === true
-```
-
 ### Options
 
 ```ts
@@ -306,8 +291,6 @@ interface ValidateInitDataOptions {
   extractChat?: boolean;
   parseUnsafeData?: boolean;
   verifySignature?: boolean;
-  publicKey?: string;       // PEM (when verifySignature)
-  botId?: number;           // numeric bot id (when verifySignature)
 }
 ```
 
@@ -571,7 +554,7 @@ You can use .loadTelegramScript or .getTelegramCdnUrl directly.
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useTelegram, useReady, useTelegramMainButton, useInitData } from '@mr-m/tg-kit/react';
+import { useTelegram, useReady, useTelegramMainButton, useInitData } from '@mr-m/tg-kit';
 
 export default function Home() {
   useReady();
@@ -692,9 +675,6 @@ await bot.setWebhook({
    dedupe key).
 5. **Respect `retry_after`** in `TelegramApiError.parameters` for
    flood-control.
-6. For the optional third-party `signature` (Ed25519): use it when you
-   need to verify `initData` **without** the bot token (e.g. a partner
-   service).
 
 ---
 
