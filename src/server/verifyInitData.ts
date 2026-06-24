@@ -58,7 +58,6 @@ function parseInitData(initData: string) {
   const chatInstance = params.get('chat_instance');
 
   params.delete('hash');
-  params.delete('signature');
 
   const data: Record<string, string> = {};
   for (const [k, v] of params.entries()) {
