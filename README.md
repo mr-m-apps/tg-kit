@@ -167,6 +167,8 @@ If `@mr-m/tg-kit` helps you ship — consider supporting development ❤️
 
 Found a bug or have a feature request? Open an issue on [GitHub](https://github.com/mr-m-apps/tg-kit/issues).
 
+**Built with ❤️ for Telegram Mini Apps**
+
 ---
 
 
@@ -174,5 +176,3 @@ Found a bug or have a feature request? Open an issue on [GitHub](https://github.
 
 MIT © [mr-m-apps](https://github.com/mr-m-apps)
 
-
-**Built with ❤️ for Telegram Mini Apps**
