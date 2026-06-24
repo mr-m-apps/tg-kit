@@ -35,8 +35,7 @@ export default function HomePage() {
       .then(setVerified)
       .catch(() => setVerified(null))
   }, [initData])
-
-  // Hydrate "saved count" from CloudStorage
+  
   useEffect(() => {
     cloud.getItem("clicks").then((v) => setSavedCount(Number(v) || 0))
   }, [cloud])
@@ -57,7 +56,6 @@ export default function HomePage() {
     <main
       data-theme={colorScheme}
       className="flex min-h-screen flex-col items-center gap-6 px-6 py-12 text-center"
-      style={{ paddingBottom: "calc(96px + var(--tg-safe-area-inset-bottom, 0px))" }}
     >
       <img
         src={getUserAvatarUrl(user ?? undefined)}
