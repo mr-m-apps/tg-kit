@@ -22,21 +22,11 @@ export interface ValidateInitDataOptions {
   extractStartParam?: boolean;
   extractChat?: boolean;
   parseUnsafeData?: boolean;
-  verifySignature?: boolean;
-  publicKey?: string;
-  botId?: number;
 }
 
 export interface ValidateInitDataResult<TUser = TgUser> {
   valid: boolean;
-  reason?:
-    | 'invalid_hash'
-    | 'invalid_signature'
-    | 'missing_signature'
-    | 'missing_public_key'
-    | 'expired'
-    | 'missing_hash'
-    | 'malformed';
+  reason?: 'invalid_hash' | 'expired' | 'missing_hash' | 'malformed';
   data?: Record<string, string>;
   authDate?: number;
   user?: TUser;
@@ -44,20 +34,26 @@ export interface ValidateInitDataResult<TUser = TgUser> {
   chatType?: string | null;
   chatInstance?: string | null;
   rawInitData?: string;
-  signatureValid?: boolean;
 }
 
-function parseInitData(initData: string) {
+interface ParsedInitData {
+  data: Record<string, string>;
+  hash: string | null;
+  authDate: string | null;
+  startParam: string | null;
+  chatType: string | null;
+  chatInstance: string | null;
+}
+
+function parseInitData(initData: string): ParsedInitData {
   const params = new URLSearchParams(initData);
 
   const hash = params.get('hash');
-  const signature = params.get('signature');
   const authDate = params.get('auth_date');
   const startParam = params.get('start_param');
   const chatType = params.get('chat_type');
   const chatInstance = params.get('chat_instance');
 
-  params.delete('signature'); 
   params.delete('hash');
 
   const data: Record<string, string> = {};
@@ -65,10 +61,10 @@ function parseInitData(initData: string) {
     data[k] = v;
   }
 
-  return { params, data, hash, signature, authDate, startParam, chatType, chatInstance };
+  return { data, hash, authDate, startParam, chatType, chatInstance };
 }
 
-function buildDataCheckString(data: Record<string, string>) {
+function buildDataCheckString(data: Record<string, string>): string {
   return Object.keys(data)
     .sort()
     .map((k) => `${k}=${data[k]}`)
@@ -84,11 +80,16 @@ function hexToUint8Array(hex: string): Uint8Array {
   return bytes;
 }
 
-async function verifyEdge(
-  dataCheckString: string,
-  botToken: string,
-  hash: string
-): Promise<boolean> {
+function timingSafeEqualBytes(a: Uint8Array, b: Uint8Array): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) {
+    diff |= a[i] ^ b[i];
+  }
+  return diff === 0;
+}
+
+async function verifyEdge(dataCheckString: string, botToken: string, hash: string): Promise<boolean> {
   const enc = new TextEncoder();
 
   const key = await crypto.subtle.importKey(
@@ -98,7 +99,6 @@ async function verifyEdge(
     false,
     ['sign']
   );
-
   const secret = await crypto.subtle.sign('HMAC', key, enc.encode(botToken));
 
   const hmacKey = await crypto.subtle.importKey(
@@ -108,26 +108,15 @@ async function verifyEdge(
     false,
     ['sign']
   );
-
   const signature = await crypto.subtle.sign('HMAC', hmacKey, enc.encode(dataCheckString));
 
   const computedBytes = new Uint8Array(signature);
   const hashBytes = hexToUint8Array(hash);
 
-  if (computedBytes.length !== hashBytes.length) return false;
-
-  let diff = 0;
-  for (let i = 0; i < computedBytes.length; i++) {
-    diff |= computedBytes[i] ^ hashBytes[i];
-  }
-  return diff === 0;
+  return timingSafeEqualBytes(computedBytes, hashBytes);
 }
 
-async function verifyNode(
-  dataCheckString: string,
-  botToken: string,
-  hash: string
-): Promise<boolean> {
+async function verifyNode(dataCheckString: string, botToken: string, hash: string): Promise<boolean> {
   const { createHmac, timingSafeEqual } = await getNodeCrypto();
   const secretKey = createHmac('sha256', 'WebAppData').update(botToken).digest();
   const computed = createHmac('sha256', secretKey).update(dataCheckString).digest();
@@ -136,58 +125,13 @@ async function verifyNode(
   return timingSafeEqual(hashBuffer, computed);
 }
 
-function verifyNodeSync(
-  dataCheckString: string,
-  botToken: string,
-  hash: string
-): boolean {
+function verifyNodeSync(dataCheckString: string, botToken: string, hash: string): boolean {
   const { createHmac, timingSafeEqual } = getNodeCryptoSync();
   const secretKey = createHmac('sha256', 'WebAppData').update(botToken).digest();
   const computed = createHmac('sha256', secretKey).update(dataCheckString).digest();
   const hashBuffer = Buffer.from(hash, 'hex');
   if (hashBuffer.length !== computed.length) return false;
   return timingSafeEqual(hashBuffer, computed);
-}
-
-async function verifySignatureNode(
-  dataCheckString: string,
-  signatureB64: string,
-  publicKeyPem: string
-): Promise<boolean> {
-  try {
-    const { createVerify } = await getNodeCrypto();
-    const verifier = createVerify('SHA-256');
-    verifier.update(dataCheckString);
-    return verifier.verify(publicKeyPem, signatureB64, 'base64');
-  } catch {
-    return false;
-  }
-}
-
-async function verifySignatureEdge(
-  dataCheckString: string,
-  signatureB64: string,
-  publicKeyPem: string
-): Promise<boolean> {
-  try {
-    const pemBody = publicKeyPem
-      .replace(/-----BEGIN PUBLIC KEY-----/, '')
-      .replace(/-----END PUBLIC KEY-----/, '')
-      .replace(/\s+/g, '');
-    const der = Uint8Array.from(atob(pemBody), (c) => c.charCodeAt(0));
-    const key = await crypto.subtle.importKey(
-      'spki',
-      der,
-      { name: 'Ed25519' },
-      false,
-      ['verify']
-    );
-    const enc = new TextEncoder();
-    const sigBytes = Uint8Array.from(atob(signatureB64), (c) => c.charCodeAt(0));
-    return await crypto.subtle.verify('Ed25519', key, sigBytes, enc.encode(dataCheckString));
-  } catch {
-    return false;
-  }
 }
 
 export async function validateInitData<TUser = TgUser>(
@@ -211,19 +155,15 @@ export async function validateInitData<TUser = TgUser>(
     return { valid: false, reason: 'malformed' };
   }
 
-  let hash: string | null = null;
-  let authDateStr: string | null = null;
-  let data: Record<string, string> = {};
-
+  let parsed: ParsedInitData;
   try {
-    const parsed = parseInitData(initData);
-    hash = parsed.hash;
-    authDateStr = parsed.authDate;
-    data = parsed.data;
+    parsed = parseInitData(initData);
   } catch {
     if (strict) throw new Error('malformed initData');
     return { valid: false, reason: 'malformed' };
   }
+
+  const { data, hash, authDate: authDateStr } = parsed;
 
   if (!hash) {
     if (strict) throw new Error('missing_hash');
@@ -269,31 +209,6 @@ export async function validateInitData<TUser = TgUser>(
   const chatType = extractChat ? data.chat_type ?? null : undefined;
   const chatInstance = extractChat ? data.chat_instance ?? null : undefined;
 
-  let signatureValid: boolean | undefined;
-  if (options.verifySignature) {
-    const params = new URLSearchParams(initData);
-    const signatureB64 = params.get('signature');
-    if (!signatureB64) {
-      if (strict) throw new Error('missing_signature');
-      return { valid: false, reason: 'missing_signature', data };
-    }
-    if (!options.publicKey) {
-      if (strict) throw new Error('missing_public_key');
-      return { valid: false, reason: 'missing_public_key', data };
-    }
-    
-    const botId = options.botId ?? 0;
-    const signatureCheckString = `${botId}:WebAppData\n${dataCheckString}`;
-    signatureValid =
-      runtime === 'edge'
-        ? await verifySignatureEdge(signatureCheckString, signatureB64, options.publicKey)
-        : await verifySignatureNode(signatureCheckString, signatureB64, options.publicKey);
-    if (!signatureValid) {
-      if (strict) throw new Error('invalid_signature');
-      return { valid: false, reason: 'invalid_signature', data };
-    }
-  }
-
   return {
     valid: true,
     data,
@@ -303,7 +218,6 @@ export async function validateInitData<TUser = TgUser>(
     chatType,
     chatInstance,
     rawInitData: parseUnsafeData ? initData : undefined,
-    signatureValid,
   };
 }
 
@@ -327,7 +241,7 @@ export function validateInitDataSync<TUser = TgUser>(
     return { valid: false, reason: 'malformed' };
   }
 
-  let parsed: ReturnType<typeof parseInitData>;
+  let parsed: ParsedInitData;
   try {
     parsed = parseInitData(initData);
   } catch {
@@ -335,22 +249,22 @@ export function validateInitDataSync<TUser = TgUser>(
     return { valid: false, reason: 'malformed' };
   }
 
-  const hash = parsed.hash;
+  const { data, hash, authDate: authDateStr } = parsed;
 
   if (!hash) {
     if (strict) throw new Error('missing_hash');
     return { valid: false, reason: 'missing_hash' };
   }
 
-  const dataCheckString = buildDataCheckString(parsed.data);
-  const ok = verifyNodeSync(dataCheckString, botToken, hash);
+  const dataCheckString = buildDataCheckString(data);
+  const isValid = verifyNodeSync(dataCheckString, botToken, hash);
 
-  if (!ok) {
+  if (!isValid) {
     if (strict) throw new Error('invalid_hash');
     return { valid: false, reason: 'invalid_hash' };
   }
 
-  const authDate = parsed.authDate ? Number(parsed.authDate) : 0;
+  const authDate = authDateStr ? Number(authDateStr) : 0;
 
   if (!skipAuthDateCheck) {
     if (!authDate || Number.isNaN(authDate)) {
@@ -365,21 +279,21 @@ export function validateInitDataSync<TUser = TgUser>(
   }
 
   let parsedUser: TUser | undefined;
-  if (parseUser && parsed.data.user) {
+  if (parseUser && data.user) {
     try {
-      parsedUser = JSON.parse(parsed.data.user);
+      parsedUser = JSON.parse(data.user);
     } catch {
       if (strict) throw new Error('invalid_user_json');
     }
   }
 
-  const startParam = extractStartParam ? parsed.data.start_param ?? null : undefined;
-  const chatType = extractChat ? parsed.data.chat_type ?? null : undefined;
-  const chatInstance = extractChat ? parsed.data.chat_instance ?? null : undefined;
+  const startParam = extractStartParam ? data.start_param ?? null : undefined;
+  const chatType = extractChat ? data.chat_type ?? null : undefined;
+  const chatInstance = extractChat ? data.chat_instance ?? null : undefined;
 
   return {
     valid: true,
-    data: parsed.data,
+    data,
     authDate,
     user: parsedUser,
     startParam,
@@ -388,8 +302,3 @@ export function validateInitDataSync<TUser = TgUser>(
     rawInitData: parseUnsafeData ? initData : undefined,
   };
 }
-
-export {
-  verifySignatureNode,
-  verifySignatureEdge,
-};
