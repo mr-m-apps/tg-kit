@@ -344,19 +344,6 @@ const result = await validateInitData(initData, process.env.BOT_TOKEN!, {
 });
 ```
 
-### Ed25519 third-party signature
-
-Used when a partner wants to verify `initData` without your bot token:
-
-```ts
-await validateInitData(initData, '', {
-  verifySignature: true,
-  publicKey: TELEGRAM_ED25519_PEM,
-  botId: 1234567890,
-  runtime: 'edge',
-});
-```
-
 ### All options
 
 ```ts
@@ -369,9 +356,6 @@ interface ValidateInitDataOptions {
   extractStartParam?: boolean;
   extractChat?: boolean;
   parseUnsafeData?: boolean;
-  verifySignature?: boolean;
-  publicKey?: string;
-  botId?: number;
 }
 ```
 
