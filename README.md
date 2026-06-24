@@ -163,6 +163,16 @@ If `@mr-m/tg-kit` helps you ship — consider supporting development ❤️
 
 ---
 
+## 🤝 Contributing
+
+Found a bug or have a feature request? Open an issue on [GitHub](https://github.com/mr-m-apps/tg-kit/issues).
+
+---
+
+
 ## 📜 License
 
 MIT © [mr-m-apps](https://github.com/mr-m-apps)
+
+
+**Built with ❤️ for Telegram Mini Apps**
