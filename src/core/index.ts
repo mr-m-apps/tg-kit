@@ -43,15 +43,48 @@ export function getUserIdentifier(user?: TgUser): string {
 
 export function getUserAvatarUrl(
   user?: TgUser,
-  fallback = 'https://via.placeholder.com/100x100?text=?'
+  fallback = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjNjY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iNDAiIGZpbGw9IndoaXRlIj4/PC90ZXh0Pjwvc3ZnPg=='
 ): string {
   if (user?.photo_url) return user.photo_url;
+
   if (user?.id) {
-    const name = `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim()
-      || user.username
-      || `user_${user.id}`;
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=100&rounded=true&bold=true`;
+    const name =
+      `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() ||
+      user.username ||
+      `user_${user.id}`;
+
+    const initials = name
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() ?? '')
+      .join('');
+
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
+        <rect width="100%" height="100%" rx="50" fill="#4F46E5"/>
+        <text
+          x="50%"
+          y="50%"
+          dominant-baseline="middle"
+          text-anchor="middle"
+          font-family="Arial,sans-serif"
+          font-size="40"
+          font-weight="bold"
+          fill="white"
+        >
+          ${initials}
+        </text>
+      </svg>
+    `;
+
+    const base64 =
+      typeof Buffer !== 'undefined'
+        ? Buffer.from(svg).toString('base64')
+        : btoa(svg);
+
+    return `data:image/svg+xml;base64,${base64}`;
   }
+
   return fallback;
 }
 
