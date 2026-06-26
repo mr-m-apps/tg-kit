@@ -32,7 +32,7 @@ Use `tg-kit` without React, without a build step, or from any framework
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <!-- 2. tg-kit IIFE — exposes `window.TgKit` -->
-  <script src="https://unpkg.com/@mr-m/tg-kit/dist/browser.iife.js"></script>
+  <script src="https://unpkg.com/@mr-m/tg-kit/dist/browser.global.js"></script>
 </head>
 <body>
   <h1 id="greeting">Loading…</h1>
