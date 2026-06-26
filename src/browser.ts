@@ -1,41 +1,9 @@
-export {
-  getWebApp,
-  isInTelegram,
-  isVersionAtLeast,
-  getRawUserData,
-  getUserDisplayName,
-  getUserIdentifier,
-  getUserAvatarUrl,
-  getUserInfoWithAvatar,
-  openExternalLink,
-  openTelegramLink,
-  openInvoice,
-  switchInlineQuery,
-  hideKeyboard,
-  haptic,
-  cloudStorage,
-  deviceStorage,
-  secureStorage,
-  dialog,
-  readClipboard,
-  scanQr,
-  shareToStory,
-  shareMessage,
-  setEmojiStatus,
-  requestEmojiStatusAccess,
-  downloadFile,
-  requestWriteAccess,
-  requestContact,
-  requestChat,
-  invokeCustomMethod,
-  biometric,
-  location,
-} from './core';
+export * from './core';
+export * from './types/webapp';
 
 export {
   loadTelegramScript,
   getTelegramCdnUrl,
-  injectTelegramScriptTag,
 } from './cdn';
 
 export {
@@ -43,25 +11,3 @@ export {
   installDevMode,
   isDevMode,
 } from './dev';
-
-export type {
-  TgUser,
-  TgWebApp,
-  TgThemeParams,
-  WebAppInitData,
-  WebAppEventType,
-  TgPlatform,
-  BottomButton,
-  BackButton,
-  HapticFeedback,
-  CloudStorage,
-  DeviceStorage,
-  SecureStorage,
-  SafeAreaInset,
-  PopupParams,
-  LocationData,
-  RequestChatParams,
-  DownloadFileParams,
-  EmojiStatusParams,
-  StoryShareParams,
-} from './types/webapp';
