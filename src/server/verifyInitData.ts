@@ -45,6 +45,30 @@ interface ParsedInitData {
   chatInstance: string | null;
 }
 
+function normalizeInitData(initData: string): string {
+  if (initData.includes('hash=')) {
+    return initData;
+  }
+
+  if (!initData.includes('%26hash%3D')) {
+    return initData;
+  }
+
+  try {
+    const decoded = decodeURIComponent(initData);
+
+    if (
+      decoded.includes('user=') &&
+      decoded.includes('auth_date=') &&
+      decoded.includes('hash=')
+    ) {
+      return decoded;
+    }
+  } catch {}
+
+  return initData;
+}
+
 function parseInitData(initData: string): ParsedInitData {
   const params = new URLSearchParams(initData);
 
@@ -157,6 +181,7 @@ export async function validateInitData<TUser = TgUser>(
 
   let parsed: ParsedInitData;
   try {
+    initData = normalizeInitData(initData);
     parsed = parseInitData(initData);
   } catch {
     if (strict) throw new Error('malformed initData');
@@ -243,6 +268,7 @@ export function validateInitDataSync<TUser = TgUser>(
 
   let parsed: ParsedInitData;
   try {
+    initData = normalizeInitData(initData);
     parsed = parseInitData(initData);
   } catch {
     if (strict) throw new Error('malformed initData');
