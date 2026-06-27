@@ -96,7 +96,7 @@ if (!result.valid) throw new Error(result.reason);
 | `@mr-m/tg-kit/bot` | Node / Edge | `TelegramBot`, `Dispatcher`, `TelegramPoller` |
 | `@mr-m/tg-kit/cdn` | Browser | `loadTelegramScript`, `getTelegramCdnUrl` |
 | `@mr-m/tg-kit/dev` | Dev only | `installDevMode`, `createMockWebApp` |
-| `<script src=".../browser.iife.js">` | HTML | Global `window.TgKit` |
+| `<script src=".../browser.global.js">` | HTML | Global `window.TgKit` |
 
 > ⚠️ **Never** import `/bot` or `/server` from client code — they require the bot token.
 
